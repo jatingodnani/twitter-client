@@ -5,7 +5,7 @@ import {BiHash, BiHomeCircle, BiUser} from "react-icons/bi"
 import Feedcard from '@/components/FeedCard'
 import { GoogleLogin } from '@react-oauth/google'
 import { useCallback } from 'react'
-
+import toast,{Toaster} from 'react-hot-toast';
 import { graphqlclient } from '@/clients/api'
 import { verifygoogletokenquery } from '@/graphql/query/user'
 interface Twitersidebarbutton{
@@ -43,16 +43,20 @@ export default function Home() {
   
   const handlewithLogin=useCallback(async(cred:CredentialResponse)=>{
 const googleToken =cred.credential;
-console.log(googleToken)
+
 if(!googleToken){
   console.log("error")
- return
+ return toast.error("Not found User")
 }
 
-const {verifygoogletoken}=await graphqlclient.request(verifygoogletokenquery,{token:googleToken})
-  
+const {verifyGoogletoken}=await graphqlclient.request(verifygoogletokenquery,{token:googleToken})
 
-console.log(verifygoogletoken)
+toast.success('Successfully Signed!')
+if(verifyGoogletoken){
+
+  window.localStorage.setItem("twitter_id",verifyGoogletoken)
+}
+
 },[])
   
   return (
@@ -89,6 +93,7 @@ console.log(verifygoogletoken)
     <div className='p-5 bg-slate-700 rounded-lg'>
       <h1 className='my-2 text-2xl'>New to Twitter?</h1>
     <GoogleLogin onSuccess={handlewithLogin}/>
+    <Toaster />
     </div>
    </div>
    </div>
