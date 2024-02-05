@@ -1,7 +1,13 @@
+"use client"
 import Image from 'next/image'
 import {BsBell, BsBookmark, BsEnvelope, BsTwitter} from "react-icons/bs"
 import {BiHash, BiHomeCircle, BiUser} from "react-icons/bi"
 import Feedcard from '@/components/FeedCard'
+import { GoogleLogin } from '@react-oauth/google'
+import { useCallback } from 'react'
+
+import { graphqlclient } from '@/clients/api'
+import { verifygoogletokenquery } from '@/graphql/query/user'
 interface Twitersidebarbutton{
  title:string
  icon:React.ReactNode
@@ -34,6 +40,21 @@ const SidebarMenu:Twitersidebarbutton[]=[
   }
 ]
 export default function Home() {
+  
+  const handlewithLogin=useCallback(async(cred:CredentialResponse)=>{
+const googleToken =cred.credential;
+console.log(googleToken)
+if(!googleToken){
+  console.log("error")
+ return
+}
+
+const {verifygoogletoken}=await graphqlclient.request(verifygoogletokenquery,{token:googleToken})
+  
+
+console.log(verifygoogletoken)
+},[])
+  
   return (
     <div>
       <div className='grid grid-cols-12  w-screen h-screen px-52'>
@@ -64,7 +85,12 @@ export default function Home() {
   <Feedcard/>
    </div>
    
-   <div className='col-span-3'></div>
+   <div className='col-span-3 p-5 '>
+    <div className='p-5 bg-slate-700 rounded-lg'>
+      <h1 className='my-2 text-2xl'>New to Twitter?</h1>
+    <GoogleLogin onSuccess={handlewithLogin}/>
+    </div>
+   </div>
    </div>
     </div>
   )
